@@ -1,1 +1,1 @@
-The form of test statistic 2016 follows the analytical form, and the function "gauss" is not exactly identical with "N(0,1)", where we remove "the division by 2" in the [exp(-r^2)] term to match it with our analytical derivations.
+The form of test statistic 2016 follows the analytical form, and the function "gauss" in the GAUSS codes is not identical with "N(0,1)" to match it with our analytical derivations.

@@ -1,4 +1,4 @@
-# TestStatistics-Subsampling
+# Test Statistics-Subsampling
 
 This repository contains all of the codes for the paper titled “Properties of Test Statistics for Nonparametric Cointegrating Regression Functions Based on Subsamples” by (Sepideh Mosaferi, Mark S. Kaiser, and Daniel J. Nordman). 
 

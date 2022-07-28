@@ -50,12 +50,10 @@ load Spain[59,2]= "/Users/sepidehmosaferi/Desktop/Spain.txt";
 N = rows(Spain);
 
 @ value of d @ 
-d_SPAx = 1.079;          
-d_SPAy = 1.527;    
+d_SPAx = 1.079;           
 
 @ value of lambda @ 
 lambda_SPAx = 0.138;
-lambda_SPAy = 0.259;
 
 // subsampling process
 block1 = 0.5*(N^0.5); 

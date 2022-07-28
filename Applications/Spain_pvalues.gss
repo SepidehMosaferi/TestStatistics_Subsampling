@@ -6,7 +6,7 @@ new;
 library gauss, pgraph;
 pqgwin many;
 
-// test statistic 2012: linear
+// test statistic 2012: straight line
 proc ( 1 ) = Test2012_linear(y,x,h);
     local n,arg,ker,theta1,theta0,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
     n = rows(y);      
@@ -26,7 +26,7 @@ proc ( 1 ) = Test2012_linear(y,x,h);
     retp(Z_N);
 endp;   
 
-// test statistic 2016: linear
+// test statistic 2016: straight line
 proc ( 1 ) = Test2016_linear(y,x,h);
     local n,arg,ker,theta1,theta0,gxtheta,z2,T_N;
     n = rows(y);  
@@ -86,8 +86,8 @@ tau_b3 = block3*h_b3/d_b3;
 tau_b4 = block4*h_b4/d_b4;
 tau_b5 = block5*h_b5/d_b5;
 
-// 1.] Linear Hypothesis: Test 2012
-// test 2012: linear test
+// 1.] Straight Line Hypothesis: Test 2012
+// test 2012: straight line test
 Test_all = Test2012_linear(Spain[.,1],Spain[.,2],h_N);
 
 // subDATA for block1
@@ -286,8 +286,8 @@ pvalue_block5 = pvalue_UP5+pvalue_LOW5; // answer
 
 // -------------------------------------------------------------------------
 
-// 2.] Linear Hypothesis: Test 2016    
-// test 2016: linear test
+// 2.] Straight Line Hypothesis: Test 2016    
+// test 2016: straight line test
 TN_all = Test2016_linear(Spain[.,1],Spain[.,2],h_N);
 Test_all = (1/tauN) * TN_all; 
 

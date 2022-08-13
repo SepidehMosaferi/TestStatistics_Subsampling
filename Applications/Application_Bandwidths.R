@@ -8,7 +8,7 @@ require("PLRModels")
 
 # read data
 glinear_Spain <- read.table("/Users/sepidehmosaferi/Desktop/glinear_Spain.txt", header = TRUE)
-glinearquadratic_France <- read.table("/Users/sepidehmosaferi/Desktop/glinearquadratic_France.txt", header = TRUE)
+gquadratic_France <- read.table("/Users/sepidehmosaferi/Desktop/gquadratic_France.txt", header = TRUE)
 
 
 ## Spain
@@ -62,7 +62,7 @@ legend(8.1, 5.75, legend=c("N-W", expression(H[A])), col = c("black","lightblue"
 #----------------------------------------------------------
 ## France
 # cross-validation
-data <- cbind(glinearquadratic_France[,2],glinearquadratic_France[,1])
+data <- cbind(gquadratic_France[,2],gquadratic_France[,1])
 
 CVprocess <- np.cv(data = data, h.seq = NULL, num.h = 50, w = NULL, num.ln = 1, 
                    ln.0 = 1, step.ln = 1, estimator = "NW", kernel = "gaussian")
@@ -82,6 +82,6 @@ plot(data[,2], data[,1],xlab="log(GDP)",ylab="log(CO2)",main="France",
 lines(x_grid, nw(x = x_grid, X = data[,2], Y = data[,1], 
                  h = CVprocess$h.opt$matrix.0..2..num.ln.[2]), 
       col = "black", lwd=2, lty=4)
-lines(glinearquadratic_France$x_France,glinearquadratic_France$g_quadratic,lwd=2,col="lightblue",lty=1)
+lines(gquadratic_France$x_France,gquadratic_France$g_quadratic,lwd=2,col="lightblue",lty=1)
 legend(8.99, 5.9, legend=c("N-W", expression(H[B])), col = c("black","lightblue"),lty = c(4,1))
 

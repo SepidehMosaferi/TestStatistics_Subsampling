@@ -83,12 +83,11 @@ sig = 0.2;             @ error standard deviation @
 nn = numh[2]; 
   
   alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ alpha=nominal level type I error @
-  Critic = 1-alpha;  @ upper tail quantile value @
 
-  Ind_accept1 = zeros(iter,rows(Critic));
-  Ind_accept2 = zeros(iter,rows(Critic));
-  Ind_accept3 = zeros(iter,rows(Critic));
-  Ind_accept4 = zeros(iter,rows(Critic));
+  Ind_accept1 = zeros(iter,rows(alpha));
+  Ind_accept2 = zeros(iter,rows(alpha));
+  Ind_accept3 = zeros(iter,rows(alpha));
+  Ind_accept4 = zeros(iter,rows(alpha));
   
   k = 1;
   do until k > iter;            @ loop for simulation @
@@ -151,15 +150,22 @@ nn = numh[2];
           l = l+1;
       endo;
       
-      {sub_Test_1} = sub_TN_1 * (1/tau_b1);
+      {sub_Test_1} = sub_TN_1 * (1/tau_b1);      
       
-      // indicator of being greater for block1
-      sub_Test_1sort = sortc(sub_Test_1,1);  @ sorted values based on subsamples @      
-      QntileUP1 = quantile(sub_Test_1sort,Critic); @ Upper Q. @
-      
+      // indicator for p-value for block1    
+      Ind_accept_1 = zeros(numblock1,1);
       z=1;
-      do until z > rows(Critic);  
-          Ind_accept1[k,z] = Test_all >= QntileUP1[z];  @ acceptance indicator @
+      do until z > numblock1;  
+          Ind_accept_1[z] = Test_all <= sub_Test_1[z];  @ acceptance indicator @
+          z = z+1;
+      endo;
+      
+      pvalue_1 = meanc(Ind_accept_1); 
+      
+      // indicator of acceptance for block1      
+      z=1;
+      do until z > rows(alpha);  
+          Ind_accept1[k,z] = pvalue_1 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
@@ -182,13 +188,20 @@ nn = numh[2];
       
       {sub_Test_2} = sub_TN_2 * (1/tau_b2);
       
-      // indicator of being greater for block2
-      sub_Test_2sort = sortc(sub_Test_2,1);  @ sorted values based on subsamples @      
-      QntileUP2 = quantile(sub_Test_2sort,Critic); @ Upper Q. @
-      
+      // indicator for p-value for block2    
+      Ind_accept_2 = zeros(numblock2,1);
       z=1;
-      do until z > rows(Critic);  
-          Ind_accept2[k,z] = Test_all >= QntileUP2[z];  @ acceptance indicator @
+      do until z > numblock2;  
+          Ind_accept_2[z] = Test_all <= sub_Test_2[z];  @ acceptance indicator @
+          z = z+1;
+      endo;
+      
+      pvalue_2 = meanc(Ind_accept_2); 
+      
+      // indicator of acceptance for block2      
+      z=1;
+      do until z > rows(alpha);  
+          Ind_accept2[k,z] = pvalue_2 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
@@ -211,13 +224,20 @@ nn = numh[2];
       
       {sub_Test_3} = sub_TN_3 * (1/tau_b3);
       
-      // indicator of being greater for block3
-      sub_Test_3sort = sortc(sub_Test_3,1);  @ sorted values based on subsamples @      
-      QntileUP3 = quantile(sub_Test_3sort,Critic); @ Upper Q. @
-      
+      // indicator for p-value for block3    
+      Ind_accept_3 = zeros(numblock3,1);
       z=1;
-      do until z > rows(Critic); 
-          Ind_accept3[k,z] = Test_all >= QntileUP3[z];  @ acceptance indicator @
+      do until z > numblock3;  
+          Ind_accept_3[z] = Test_all <= sub_Test_3[z];  @ acceptance indicator @
+          z = z+1;
+      endo;
+      
+      pvalue_3 = meanc(Ind_accept_3); 
+      
+      // indicator of acceptance for block3      
+      z=1;
+      do until z > rows(alpha);  
+          Ind_accept3[k,z] = pvalue_3 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
@@ -240,13 +260,20 @@ nn = numh[2];
       
       {sub_Test_4} = sub_TN_4 * (1/tau_b4);
       
-      // indicator of being greater for block4
-      sub_Test_4sort = sortc(sub_Test_4,1);  @ sorted values based on subsamples @      
-      QntileUP4 = quantile(sub_Test_4sort,Critic); @ Upper Q. @
-      
+      // indicator for p-value for block4    
+      Ind_accept_4 = zeros(numblock4,1);
       z=1;
-      do until z > rows(Critic);  
-          Ind_accept4[k,z] = Test_all >= QntileUP4[z];  @ acceptance indicator @
+      do until z > numblock4;  
+          Ind_accept_4[z] = Test_all <= sub_Test_4[z];  @ acceptance indicator @
+          z = z+1;
+      endo;
+      
+      pvalue_4 = meanc(Ind_accept_4); 
+      
+      // indicator of acceptance for block4      
+      z=1;
+      do until z > rows(alpha);  
+          Ind_accept4[k,z] = pvalue_4 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
@@ -266,7 +293,7 @@ nn = numh[2];
   Size4 = meanc(Ind_accept4);
   
   // writing the results
-  Result = alpha~Critic~Size1~Size2~Size3~Size4;
+  Result = alpha~Size1~Size2~Size3~Size4;
   
 /*
 Save the results 

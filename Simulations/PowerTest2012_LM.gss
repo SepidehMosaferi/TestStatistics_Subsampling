@@ -143,32 +143,20 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for upper p-value for block1    
-      Ind_accept_UP1 = zeros(numblock1,1);
+      // indicator for p-value for block1    
+      Ind_accept_1 = zeros(numblock1,1);
       z=1;
       do until z > numblock1;  
-          Ind_accept_UP1[z] = abs(Test_all) <= sub_Test_1[z];  @ acceptance indicator @
+          Ind_accept_1[z] = abs(Test_all) <= abs(sub_Test_1[z]);  @ acceptance indicator @
           z = z+1;
       endo;
       
-      pvalue_UP1 = meanc(Ind_accept_UP1); 
-      
-      // indicator for lower p-value for block1  
-      Ind_accept_LOW1 = zeros(numblock1,1);
-      z=1;
-      do until z > numblock1; 
-          Ind_accept_LOW1[z] = -abs(Test_all) >= sub_Test_1[z];  @ acceptance indicator @
-          z = z+1;
-      endo;
-      
-      pvalue_LOW1 = meanc(Ind_accept_LOW1); 
-      
-      pvalue_1 = pvalue_UP1+pvalue_LOW1;
+      pvalue_1 = meanc(Ind_accept_1); 
       
       // indicator of acceptance for block1      
       z=1;
       do until z > rows(alpha);  
-          Ind_accept1[k,z] = pvalue_1 <= alpha[z];  @ acceptance indicator@
+          Ind_accept1[k,z] = pvalue_1 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
@@ -189,31 +177,19 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for upper p-value for block2    
-      Ind_accept_UP2 = zeros(numblock2,1);
+      // indicator for p-value for block2    
+      Ind_accept_2 = zeros(numblock2,1);
       z=1;
       do until z > numblock2;  
-          Ind_accept_UP2[z] = abs(Test_all) <= sub_Test_2[z];  @ acceptance indicator @
+          Ind_accept_2[z] = abs(Test_all) <= abs(sub_Test_2[z]);  @ acceptance indicator @
           z = z+1;
       endo;
       
-      pvalue_UP2 = meanc(Ind_accept_UP2); 
-      
-      // indicator for lower p-value for block2 
-      Ind_accept_LOW2 = zeros(numblock2,1);
-      z=1;
-      do until z > numblock2; 
-          Ind_accept_LOW2[z] = -abs(Test_all) >= sub_Test_2[z];  @ acceptance indicator @
-          z = z+1;
-      endo;
-      
-      pvalue_LOW2 = meanc(Ind_accept_LOW2); 
-      
-      pvalue_2 = pvalue_UP2+pvalue_LOW2;
+      pvalue_2 = meanc(Ind_accept_2); 
       
       // indicator of acceptance for block2      
       z=1;
-      do until z > rows(alpha); 
+      do until z > rows(alpha);  
           Ind_accept2[k,z] = pvalue_2 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
@@ -235,27 +211,15 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for upper p-value for block3    
-      Ind_accept_UP3 = zeros(numblock3,1);
+      // indicator for p-value for block3    
+      Ind_accept_3 = zeros(numblock3,1);
       z=1;
       do until z > numblock3;  
-          Ind_accept_UP3[z] = abs(Test_all) <= sub_Test_3[z];  @ acceptance indicator@
+          Ind_accept_3[z] = abs(Test_all) <= abs(sub_Test_3[z]);  @ acceptance indicator @
           z = z+1;
       endo;
       
-      pvalue_UP3 = meanc(Ind_accept_UP3); 
-      
-      // indicator for lower p-value for block3  
-      Ind_accept_LOW3 = zeros(numblock3,1);
-      z=1;
-      do until z > numblock3;  
-          Ind_accept_LOW3[z] = -abs(Test_all) >= sub_Test_3[z];  @ acceptance indicator @
-          z = z+1;
-      endo;
-      
-      pvalue_LOW3 = meanc(Ind_accept_LOW3); 
-      
-      pvalue_3 = pvalue_UP3+pvalue_LOW3;
+      pvalue_3 = meanc(Ind_accept_3); 
       
       // indicator of acceptance for block3      
       z=1;
@@ -281,29 +245,17 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for upper p-value for block4    
-      Ind_accept_UP4 = zeros(numblock4,1);
+      // indicator for p-value for block4    
+      Ind_accept_4 = zeros(numblock4,1);
       z=1;
-      do until z > numblock4; 
-          Ind_accept_UP4[z] = abs(Test_all) <= sub_Test_4[z];  @ acceptance indicator @
+      do until z > numblock4;  
+          Ind_accept_4[z] = abs(Test_all) <= abs(sub_Test_4[z]);  @ acceptance indicator @
           z = z+1;
       endo;
       
-      pvalue_UP4 = meanc(Ind_accept_UP4); 
+      pvalue_4 = meanc(Ind_accept_4); 
       
-      // indicator for lower p-value for block4  
-      Ind_accept_LOW4 = zeros(numblock4,1);
-      z=1;
-      do until z > numblock4; 
-          Ind_accept_LOW4[z] = -abs(Test_all) >= sub_Test_4[z];  @ acceptance indicator @
-          z = z+1;
-      endo;
-      
-      pvalue_LOW4 = meanc(Ind_accept_LOW4); 
-      
-      pvalue_4 = pvalue_UP4+pvalue_LOW4;
-      
-      // indicator of acceptance for block4     
+      // indicator of acceptance for block4      
       z=1;
       do until z > rows(alpha);  
           Ind_accept4[k,z] = pvalue_4 <= alpha[z];  @ acceptance indicator @

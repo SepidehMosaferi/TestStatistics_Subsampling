@@ -70,7 +70,7 @@ d03 = 0.3;
 d04 = 0.4;
 
 aa     = 0.25; 	       @ AR coefficient for equation error AR model @
-rho    = 0;            @ correlation between ux and uy for endogeneity @ 
+rho    = 1;            @ correlation between ux and uy for endogeneity @ 
 b  = 1;                @ regression coefficient @	
 sig = 0.2;             @ error standard deviation @
    

@@ -1,4 +1,4 @@
-// Title: Testing the Null Hypotheses of the Regression Functions for France
+// Title: Testing the Null Hypothesis of the Regression Function for France
 // Author: Sepideh Mosaferi
 // Date: July 2022
 
@@ -118,27 +118,16 @@ do until l > numblock1;
     l = l+1;
 endo;
 
-// indicator for upper p-value for block1    
-Ind_accept_UP1 = zeros(numblock1,1);
+// indicator for p-value for block1    
+Ind_accept_1 = zeros(numblock1,1);
 z=1;
 do until z > numblock1;  
-    Ind_accept_UP1[z] = abs(Test_all) <= sub_Test_1[z];  @ acceptance indicator @
+    Ind_accept_1[z] = abs(Test_all) <= abs(sub_Test_1[z]);  @ acceptance indicator @
     z = z+1;
     endo;
-      
-pvalue_UP1 = meanc(Ind_accept_UP1); 
-      
-// indicator for lower p-value for block1  
-Ind_accept_LOW1 = zeros(numblock1,1);
-z=1;
-do until z > numblock1; 
-    Ind_accept_LOW1[z] = -abs(Test_all) >= sub_Test_1[z];  @ acceptance indicator @
-    z = z+1;
-    endo;
-      
-pvalue_LOW1 = meanc(Ind_accept_LOW1); 
-      
-pvalue_block1 = pvalue_UP1+pvalue_LOW1; // answer
+
+// p-value      
+pvalue_block1 = meanc(Ind_accept_1); 
 
        
 // subDATA for block2
@@ -157,27 +146,16 @@ do until l > numblock2;
     l = l+1;
 endo;
 
-// indicator for upper p-value for block2    
-Ind_accept_UP2 = zeros(numblock2,1);
+// indicator for p-value for block2    
+Ind_accept_2 = zeros(numblock2,1);
 z=1;
 do until z > numblock2;  
-    Ind_accept_UP2[z] = abs(Test_all) <= sub_Test_2[z];  @ acceptance indicator @
+    Ind_accept_2[z] = abs(Test_all) <= abs(sub_Test_2[z]);  @ acceptance indicator @
     z = z+1;
     endo;
       
-pvalue_UP2 = meanc(Ind_accept_UP2); 
-      
-// indicator for lower p-value for block2  
-Ind_accept_LOW2 = zeros(numblock2,1);
-z=1;
-do until z > numblock2;  
-    Ind_accept_LOW2[z] = -abs(Test_all) >= sub_Test_2[z];  @ acceptance indicator @
-    z = z+1;
-    endo;
-      
-pvalue_LOW2 = meanc(Ind_accept_LOW2); 
-      
-pvalue_block2 = pvalue_UP2+pvalue_LOW2; // answer
+// p-value   
+pvalue_block2 = meanc(Ind_accept_2); 
 
        
 // subDATA for block3
@@ -197,26 +175,15 @@ do until l > numblock3;
 endo;
 
 // indicator for upper p-value for block3    
-Ind_accept_UP3 = zeros(numblock3,1);
+Ind_accept_3 = zeros(numblock3,1);
 z=1;
 do until z > numblock3;  
-    Ind_accept_UP3[z] = abs(Test_all) <= sub_Test_3[z];  @ acceptance indicator @
+    Ind_accept_3[z] = abs(Test_all) <= abs(sub_Test_3[z]);  @ acceptance indicator @
     z = z+1;
     endo;
-      
-pvalue_UP3 = meanc(Ind_accept_UP3); 
-      
-// indicator for lower p-value for block3  
-Ind_accept_LOW3 = zeros(numblock3,1);
-z=1;
-do until z > numblock3;  
-    Ind_accept_LOW3[z] = -abs(Test_all) >= sub_Test_3[z];  @ acceptance indicator @
-    z = z+1;
-    endo;
-      
-pvalue_LOW3 = meanc(Ind_accept_LOW3); 
-      
-pvalue_block3 = pvalue_UP3+pvalue_LOW3; // answer
+
+// p-value      
+pvalue_block3 = meanc(Ind_accept_3); 
 
        
 // subDATA for block4
@@ -235,27 +202,16 @@ do until l > numblock4;
     l = l+1;
 endo;
 
-// indicator for upper p-value for block4    
-Ind_accept_UP4 = zeros(numblock4,1);
+// indicator for p-value for block4    
+Ind_accept_4 = zeros(numblock4,1);
 z=1;
 do until z > numblock4;  
-    Ind_accept_UP4[z] = abs(Test_all) <= sub_Test_4[z];  @ acceptance indicator s@
+    Ind_accept_4[z] = abs(Test_all) <= abs(sub_Test_4[z]);  @ acceptance indicator s@
     z = z+1;
     endo;
-      
-pvalue_UP4 = meanc(Ind_accept_UP4); 
-      
-// indicator for lower p-value for block4  
-Ind_accept_LOW4 = zeros(numblock4,1);
-z=1;
-do until z > numblock4;  
-    Ind_accept_LOW4[z] = -abs(Test_all) >= sub_Test_4[z];  @ acceptance indicator s@
-    z = z+1;
-    endo;
-      
-pvalue_LOW4 = meanc(Ind_accept_LOW4); 
-      
-pvalue_block4 = pvalue_UP4+pvalue_LOW4; // answer
+
+// p-value      
+pvalue_block4 = meanc(Ind_accept_4); 
 
 
 // subDATA for block5
@@ -274,27 +230,16 @@ do until l > numblock5;
     l = l+1;
 endo;
 
-// indicator for upper p-value for block5    
-Ind_accept_UP5 = zeros(numblock5,1);
+// indicator for p-value for block5    
+Ind_accept_5 = zeros(numblock5,1);
 z=1;
 do until z > numblock5;  
-    Ind_accept_UP5[z] = abs(Test_all) <= sub_Test_5[z];  @ acceptance indicator s@
+    Ind_accept_5[z] = abs(Test_all) <= abs(sub_Test_5[z]);  @ acceptance indicator s@
     z = z+1;
     endo;
-      
-pvalue_UP5 = meanc(Ind_accept_UP5); 
-      
-// indicator for lower p-value for block5  
-Ind_accept_LOW5 = zeros(numblock5,1);
-z=1;
-do until z > numblock5; 
-    Ind_accept_LOW5[z] = -abs(Test_all) >= sub_Test_5[z];  @ acceptance indicator @
-    z = z+1;
-    endo;
-      
-pvalue_LOW5 = meanc(Ind_accept_LOW5); 
-      
-pvalue_block5 = pvalue_UP5+pvalue_LOW5; // answer
+
+// p-value      
+pvalue_block5 = meanc(Ind_accept_5); 
 
        
 // -------------------------------------------------------------------------
@@ -322,15 +267,16 @@ endo;
 
 {sub_Test_1} = sub_TN_1 * (1/tau_b1);
 
-// p-value
-Ind_accept1 = zeros(1,numblock1);
+// indicator for p-value for block1
+Ind_accept1 = zeros(numblock1,1);
 z=1;
 do until z > numblock1;  
     Ind_accept1[z] = Test_all <= sub_Test_1[z];  @ acceptance indicator @
     z = z+1;
 endo;
-     
-pvalue_block1 = meanc(Ind_accept1');  // answer 
+
+// p-value     
+pvalue_block1 = meanc(Ind_accept1);  
 
        
 // subDATA for block2
@@ -351,15 +297,16 @@ endo;
 
 {sub_Test_2} = sub_TN_2 * (1/tau_b2);
 
-// p-value
-Ind_accept2 = zeros(1,numblock2);
+// indicator for p-value for block2
+Ind_accept2 = zeros(numblock2,1);
 z=1;
 do until z > numblock2;  
     Ind_accept2[z] = Test_all <= sub_Test_2[z];  @ acceptance indicator s@
     z = z+1;
 endo;
-     
-pvalue_block2 = meanc(Ind_accept2');  // answer 
+
+// p-value     
+pvalue_block2 = meanc(Ind_accept2);  
 
        
 // subDATA for block3
@@ -380,15 +327,16 @@ endo;
 
 {sub_Test_3} = sub_TN_3 * (1/tau_b3);
 
-// p-value
-Ind_accept3 = zeros(1,numblock3);
+// indicator for p-value for block3
+Ind_accept3 = zeros(numblock3,1);
 z=1;
 do until z > numblock3;  
     Ind_accept3[z] = Test_all <= sub_Test_3[z];  @ acceptance indicator @
     z = z+1;
 endo;
-     
-pvalue_block3 = meanc(Ind_accept3');  // answer 
+
+// p-value     
+pvalue_block3 = meanc(Ind_accept3);   
 
        
 // subDATA for block4
@@ -409,15 +357,16 @@ endo;
 
 {sub_Test_4} = sub_TN_4 * (1/tau_b4);
 
-// p-value
-Ind_accept4 = zeros(1,numblock4);
+// indicator for p-value for block4
+Ind_accept4 = zeros(numblock4,1);
 z=1;
 do until z > numblock4;  
     Ind_accept4[z] = Test_all <= sub_Test_4[z];  @ acceptance indicator @
     z = z+1;
 endo;
-     
-pvalue_block4 = meanc(Ind_accept4');  // answer 
+
+// p-value     
+pvalue_block4 = meanc(Ind_accept4);  
 
 
 // subDATA for block5
@@ -438,13 +387,14 @@ endo;
 
 {sub_Test_5} = sub_TN_5 * (1/tau_b5);
 
-// p-value
-Ind_accept5 = zeros(1,numblock5);
+// indicator for p-value for block5 
+Ind_accept5 = zeros(numblock5,1);
 z=1;
 do until z > numblock5;  
     Ind_accept5[z] = Test_all <= sub_Test_5[z];  @ acceptance indicator @
     z = z+1;
 endo;
-     
-pvalue_block5 = meanc(Ind_accept5');  // answer 
+
+// p-value     
+pvalue_block5 = meanc(Ind_accept5);  
 

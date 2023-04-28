@@ -1,6 +1,6 @@
-// Title: Monte Carlo Density for Test Statistic 2016 with Enodgeneity and Semi-Long Memory Regressor
+// Title: Monte Carlo Density for 2016 Test Statistic with Endogeneity and Semi-Long Memory Regressor
 // Author: Sepideh Mosaferi
-// Date: July 2022
+// Date: March 2023
 
 new;
 library pgraph;
@@ -8,14 +8,16 @@ pqgwin many;
 
 // test statistic [Analytical form for Integral]
 proc ( 1 ) = Test2016(y,x,hpower);
-    local n,gam,arg,ker,theta1,theta0,gxtheta,z2,T_N;
+    local n,gam,arg,ker,xmat,theta,gxtheta,z2,T_N;
     n = rows(y); 
     gam = 1/(n^hpower);    
     arg = (x*ones(1,n)-ones(n,1)*x')/gam;
     ker = gam*gauss(arg/2); 
-    theta1 = sumc((x-meanc(x)).*(y-meanc(y)))/sumc((x-meanc(x))^2);
-    theta0 = meanc(y)- theta1*meanc(x);
-    gxtheta = theta0+theta1*x;   
+    xmat = zeros(n, 2);
+    xmat[.,1]=ones(n,1);
+    xmat[.,2]=x;
+    theta=pinv(xmat'*xmat)*xmat'*y;
+    gxtheta = theta[1]+theta[2]*x; 
     z2 = (y-gxtheta)*(y-gxtheta)';  
     T_N = sumc(sumc(ker.*z2));
     retp(T_N); 

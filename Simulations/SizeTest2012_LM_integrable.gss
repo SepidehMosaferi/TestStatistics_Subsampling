@@ -1,4 +1,4 @@
-// Title: Power for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor
+// Title: Size for 2012 Test Statistic with Endogeneity and Long Memory Regressor for integrable regression function
 // Author: Sepideh Mosaferi
 // Date: March 2023
 
@@ -8,16 +8,27 @@ pqgwin many;
 
 // test statistic
 proc ( 1 ) = Test2012(y,x,hpower);
-    local n,gam,arg,ker,xmat,theta,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    local n,gam,arg,ker,theta,j,Ratio,thetanew,dif,theta1,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
     n = rows(y);      
     gam = 1/n^hpower;    
     arg = (x*ones(1,n)-ones(n,1)*x')/gam; 
     ker = pdfn(arg);  
-    xmat = zeros(n, 2);
-    xmat[.,1]=ones(n,1);
-    xmat[.,2]=x;
-    theta=pinv(xmat'*xmat)*xmat'*y;
-    gxtheta = theta[1]+theta[2]*x; 
+    theta = -ln(maxc(abs(y)))/abs(maxc(abs(x))); @ init value @
+    
+    // iterative alg:
+    j = 1;
+    do until j > 500;
+        Ratio = sumc((abs(x).*exp(-theta*abs(x))).*(y-exp(-theta*abs(x))))/sumc((abs(x)^2 .*exp(-theta*abs(x))).*(y-2*exp(-theta*abs(x))));
+        thetanew = theta+Ratio;
+        dif = thetanew-theta;
+        theta = thetanew;
+        if(abs(dif)<10^(-5)); break;
+        else;
+            j = j+1;
+            endif;
+            endo;
+    theta1 = theta;
+    gxtheta = exp(-theta1*abs(x)); 
     u2 = (y-gxtheta);
     u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
     S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    
@@ -27,28 +38,27 @@ proc ( 1 ) = Test2012(y,x,hpower);
     V_N2 = sumc(sumc(diagrv(u2_2m.*ker2,0)));    
     Z_N = S_N/sqrt(2*V_N2);        
     retp(Z_N);
-endp;      
+endp;  
 
 
-// proc to generate semi-long memory data by looping 
-proc dsimtemp(u,d,delta);
+// proc to generate long memory data by looping 
+proc dsim(u,d);
 /*
 ** simulate I(d) data
 ** input  = u
-** output = (I-e^(-lambda_N)*L)^-d u; lambda_N=1/N^delta
+** output = (I-L)^-d u
 */
-local nn,y,b0,k,b,ur,temp;
+local nn,y,b0,k,b,ur;
 nn= rows(u);
 b = zeros(nn,1);
 y = zeros(nn,1);
-temp = exp(-1/nn^delta);    
 b0=1;          
 k =1;
 do until k>nn;
    if k==1;
-      b[k]=temp*d;
+      b[k]=d;
    else;   
-      b[k]=temp*(k+d-1)*b[k-1]/k;
+      b[k]=(k+d-1)*b[k-1]/k;
    endif;
    k = k+1;
 endo;  
@@ -64,8 +74,8 @@ endp;
 
 
 /* main program   */
-  library gauss, pgraph;
-  pqgwin many;
+ library gauss, pgraph;
+ pqgwin many;
    
    seed1  = 78912342;
    iter   = 2000;             @ # iterations  @
@@ -77,7 +87,7 @@ d03 = 0.3;
 d04 = 0.4;
 
 aa     = 0.25; 	       @ AR coefficient for equation error AR model @
-rho    = 1;            @ correlation between ux and uy for endogeneity @ 
+rho    = 0.5;            @ correlation between ux and uy for endogeneity @ 
 b  = 1;                @ regression coefficient @	
 sig = 0.2;             @ error standard deviation @
    
@@ -85,17 +95,12 @@ sig = 0.2;             @ error standard deviation @
    hpower2 = 1/4;   
    hpower3 = 1/5;
    hpower4 = 1/6;
-   
-   delta1 = 1/3;   @ value of tempering @
-   delta2 = 1/4;
-   delta3 = 1/5;
-   delta4 = 1/6;
 
 // sample size selection  
 nn = numh[2]; 
   
 alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ alpha=nominal level type I error @
-  
+
   Ind_accept1 = zeros(iter,rows(alpha));
   Ind_accept2 = zeros(iter,rows(alpha));
   Ind_accept3 = zeros(iter,rows(alpha));
@@ -109,38 +114,37 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       ux  = ((1-rho^2)^0.5) *ux + rho*uy;  // endogeneity correlation = rho 
       uy  = recserar(uy,uy[1],aa);
       
-      uxtempd04 = dsimtemp(ux,d04,delta4);  // generate semi-long memory inputs for regressor [case: d04]. This could be changed for the other values of d and delta.    
-      xtempd04 = recserar(uxtempd04,uxtempd04[1],1); 
+      uxd01 = dsim(ux,d01);  // generate long memory inputs for regressor [case: d01]. This could be changed for the other values of d.
+      xd01 = recserar(uxd01,uxd01[1],1); 
       
-      h_N = nn^(-hpower);
-      nu = 3;
-      fxtempd04_HA = xtempd04+(abs(xtempd04)^nu)*(1/(nn^(0.25+(nu/3))*(h_N^0.25)));
-      ytempd04_HA = b*fxtempd04_HA + sig*uy;   // cointegrated regression equation [case: d04]. This could be changed for the other values of d and delta.
+      fxd01 = exp(-abs(xd01));
+      yd01 = b*fxd01 + sig*uy;    // cointegrated regression equation [case: d01]. This could be changed for the other values of d.
       
-      //writing data
-      XYD04temp_HA = xtempd04~ytempd04_HA;
-      
+      // writing data
+      XYD01 = xd01~yd01;
+          
       // subsampling process
       block1 = 0.5*(nn^0.5); 
       block2 = (nn^0.5);
       block3 = 2*(nn^0.5);
       block4 = 4*(nn^0.5);
       
-      h_N = nn^(-hpower);
+      h_N = nn^(-hpower);      
       h_b1 = block1^(-hpower);
       h_b2 = block2^(-hpower);
       h_b3 = block3^(-hpower);
       h_b4 = block4^(-hpower);
-      
+          
       // test statistic
-      Test_all = Test2012(ytempd04_HA,xtempd04,hpower);
+      Test_all = Test2012(yd01,xd01,hpower);
       
-      // subDATA for block1 under HA
-      numblock1 = nn-block1+1;
+      // subDATA for block1
+      // numblock1 = nn-block1+1 and nn^0.9 for thinning 
+      numblock1 = nn^0.9;
       subDATA1 = areshape(0,numblock1|block1|2);
       j = 1;
       do until j > numblock1;
-          subDATA1[j,.,.] = XYD04temp_HA[j:(j+block1-1),.];
+          subDATA1[j,.,.] = XYD01[j:(j+block1-1),.];
           j = j+1;
       endo;
       
@@ -168,13 +172,14 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           z = z+1;
       endo;
       
-      
-      // subDATA for block2 under HA
-      numblock2 = nn-block2+1;
+
+      // subDATA for block2
+      // numblock2 = nn-block2+1 and nn^0.9 for thinning 
+      numblock2 = nn^0.9;
       subDATA2 = areshape(0,numblock2|block2|2);
       j = 1;
       do until j > numblock2;
-          subDATA2[j,.,.] = XYD04temp_HA[j:(j+block2-1),.];
+          subDATA2[j,.,.] = XYD01[j:(j+block2-1),.];
           j = j+1;
       endo;
       
@@ -185,7 +190,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for p-value for block2    
+      // indicator for p-value for block2   
       Ind_accept_2 = zeros(numblock2,1);
       z=1;
       do until z > numblock2;  
@@ -203,12 +208,13 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       endo;
       
       
-      // subDATA for block3 under HA
-      numblock3 = nn-block3+1;
+      // subDATA for block3
+      // numblock3 = nn-block3+1 and nn^0.9 for thinning 
+      numblock3 = nn^0.9;
       subDATA3 = areshape(0,numblock3|block3|2);
       j = 1;
       do until j > numblock3;
-          subDATA3[j,.,.] = XYD04temp_HA[j:(j+block3-1),.];
+          subDATA3[j,.,.] = XYD01[j:(j+block3-1),.];
           j = j+1;
       endo;
       
@@ -219,7 +225,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for p-value for block3    
+      // indicator for p-value for block3   
       Ind_accept_3 = zeros(numblock3,1);
       z=1;
       do until z > numblock3;  
@@ -231,18 +237,19 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       
       // indicator of acceptance for block3      
       z=1;
-      do until z > rows(alpha);  
+      do until z > rows(alpha); 
           Ind_accept3[k,z] = pvalue_3 <= alpha[z];  @ acceptance indicator @
           z = z+1;
       endo;
       
-      
-      // subDATA for block4 under HA
-      numblock4 = nn-block4+1;
+
+      // subDATA for block4
+      // numblock4 = nn-block4+1 and nn^0.9 for thinning 
+      numblock4 = nn^0.9;
       subDATA4 = areshape(0,numblock4|block4|2);
       j = 1;
       do until j > numblock4;
-          subDATA4[j,.,.] = XYD04temp_HA[j:(j+block4-1),.];
+          subDATA4[j,.,.] = XYD01[j:(j+block4-1),.];
           j = j+1;
       endo;
       
@@ -253,7 +260,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
           l = l+1;
       endo;
       
-      // indicator for p-value for block4    
+      // indicator for upper for block4   
       Ind_accept_4 = zeros(numblock4,1);
       z=1;
       do until z > numblock4;  
@@ -279,21 +286,20 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
   Ind_accept3 = packr(Ind_accept3);
   Ind_accept4 = packr(Ind_accept4); 
   
-  // power of test
-  Power1 = meanc(Ind_accept1);
-  Power2 = meanc(Ind_accept2);
-  Power3 = meanc(Ind_accept3);
-  Power4 = meanc(Ind_accept4);
+  // size of test
+  Size1 = meanc(Ind_accept1);
+  Size2 = meanc(Ind_accept2);
+  Size3 = meanc(Ind_accept3);
+  Size4 = meanc(Ind_accept4);
   
   // writing the results
-  Result = alpha~Power1~Power2~Power3~Power4;
+  Result = alpha~Size1~Size2~Size3~Size4;
   
 /*
-Save the results 
+Save the results
 */
- 
+   
 Output file = "/Users/sepidehmosaferi/Desktop/Result.txt" ON; /* this opens the text file to store the results */
 Result;
-Output off; /* this closes the text file to store the results */  
-    
-    
+Output off; /* this closes the text file to store the results */    
+

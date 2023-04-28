@@ -1,6 +1,6 @@
-// Title: Monte Carlo Density for Test Statistic 2012 with Enodgeneity and Semi-Long Memory Regressor
+// Title: Monte Carlo Density for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor
 // Author: Sepideh Mosaferi
-// Date: July 2022
+// Date: March 2023
 
 new;
 library pgraph;
@@ -8,14 +8,16 @@ pqgwin many;
 
 // test statistic
 proc ( 1 ) = Test2012(y,x,hpower);
-    local n,gam,arg,ker,theta1,theta0,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    local n,gam,arg,ker,xmat,theta,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
     n = rows(y);      
     gam = 1/n^hpower;    
     arg = (x*ones(1,n)-ones(n,1)*x')/gam; 
     ker = pdfn(arg);  
-    theta1 = sumc((x-meanc(x)).*(y-meanc(y)))/sumc((x-meanc(x))^2);
-    theta0 = meanc(y)- theta1*meanc(x);
-    gxtheta = theta0+theta1*x; 
+    xmat = zeros(n, 2);
+    xmat[.,1]=ones(n,1);
+    xmat[.,2]=x;
+    theta=pinv(xmat'*xmat)*xmat'*y;
+    gxtheta = theta[1]+theta[2]*x; 
     u2 = (y-gxtheta);
     u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
     S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    

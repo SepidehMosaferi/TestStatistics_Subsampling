@@ -1,6 +1,6 @@
-// Title: Size for Test Statistic 2012 with Enodgeneity and Long Memory Regressor
+// Title: Size for 2012 Test Statistic with Endogeneity and Long Memory Regressor
 // Author: Sepideh Mosaferi
-// Date: July 2022
+// Date: March 2023
 
 new;
 library pgraph;
@@ -8,14 +8,16 @@ pqgwin many;
 
 // test statistic
 proc ( 1 ) = Test2012(y,x,hpower);
-    local n,gam,arg,ker,theta1,theta0,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    local n,gam,arg,ker,xmat,theta,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
     n = rows(y);      
     gam = 1/n^hpower;    
     arg = (x*ones(1,n)-ones(n,1)*x')/gam; 
     ker = pdfn(arg);  
-    theta1 = sumc((x-meanc(x)).*(y-meanc(y)))/sumc((x-meanc(x))^2);
-    theta0 = meanc(y)- theta1*meanc(x);
-    gxtheta = theta0+theta1*x; 
+    xmat = zeros(n, 2);
+    xmat[.,1]=ones(n,1);
+    xmat[.,2]=x;
+    theta=pinv(xmat'*xmat)*xmat'*y;
+    gxtheta = theta[1]+theta[2]*x; 
     u2 = (y-gxtheta);
     u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
     S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    
@@ -74,7 +76,7 @@ d03 = 0.3;
 d04 = 0.4;
 
 aa     = 0.25; 	       @ AR coefficient for equation error AR model @
-rho    = 1;            @ correlation between ux and uy for endogeneity @ 
+rho    = 0.5;            @ correlation between ux and uy for endogeneity @ 
 b  = 1;                @ regression coefficient @	
 sig = 0.2;             @ error standard deviation @
    
@@ -126,7 +128,8 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       Test_all = Test2012(yd01,xd01,hpower);
       
       // subDATA for block1
-      numblock1 = nn-block1+1;
+      // numblock1 = nn-block1+1 and nn^0.9 for thinning 
+      numblock1 = nn^0.9;
       subDATA1 = areshape(0,numblock1|block1|2);
       j = 1;
       do until j > numblock1;
@@ -160,7 +163,8 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       
 
       // subDATA for block2
-      numblock2 = nn-block2+1;
+      // numblock2 = nn-block2+1 and nn^0.9 for thinning 
+      numblock2 = nn^0.9;
       subDATA2 = areshape(0,numblock2|block2|2);
       j = 1;
       do until j > numblock2;
@@ -194,7 +198,8 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       
       
       // subDATA for block3
-      numblock3 = nn-block3+1;
+      // numblock3 = nn-block3+1 and nn^0.9 for thinning 
+      numblock3 = nn^0.9;
       subDATA3 = areshape(0,numblock3|block3|2);
       j = 1;
       do until j > numblock3;
@@ -228,7 +233,8 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       
 
       // subDATA for block4
-      numblock4 = nn-block4+1;
+      // numblock4 = nn-block4+1 and nn^0.9 for thinning 
+      numblock4 = nn^0.9;
       subDATA4 = areshape(0,numblock4|block4|2);
       j = 1;
       do until j > numblock4;

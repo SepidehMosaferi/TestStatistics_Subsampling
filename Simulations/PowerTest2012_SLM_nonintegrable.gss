@@ -1,6 +1,6 @@
-// Title: Power for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor
+// Title: Power for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor under Nonintegrable Regression Function
 // Author: Sepideh Mosaferi
-// Date: March 2023
+// Date: Feb 2023
 
 new;
 library pgraph;
@@ -112,9 +112,16 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       uxtempd04 = dsimtemp(ux,d04,delta4);  // generate semi-long memory inputs for regressor [case: d04]. This could be changed for the other values of d and delta.    
       xtempd04 = recserar(uxtempd04,uxtempd04[1],1); 
       
-      h_N = nn^(-hpower);
-      nu = 3;
-      fxtempd04_HA = xtempd04+(abs(xtempd04)^nu)*(1/(nn^(0.25+(nu/3))*(h_N^0.25)));
+      // multiple scenarios for the regression function:
+      // 1. y=x+0.5|x|^2*I(|x| <= 10). 
+      // Code: fxtempd04_HA = xtempd04+0.5*(abs(xtempd04)^2).*(abs(xtempd04) .<=10)
+      // 2. y=x+20*exp(-|x|^2)
+      // Code: fxtempd04_HA = xtempd04+20*exp(-abs(xtempd04)^2)
+      // 3. y=x+0.1|x|
+      // Code: fxtempd04_HA = xtempd04+0.1*abs(xtempd04)
+      // 4. y=x+0.1|x|^2
+      // Code: fxtempd04_HA = xtempd04+0.1*(abs(xtempd04)^2)
+      fxtempd04_HA = xtempd04+0.1*(abs(xtempd04)^2);
       ytempd04_HA = b*fxtempd04_HA + sig*uy;   // cointegrated regression equation [case: d04]. This could be changed for the other values of d and delta.
       
       //writing data

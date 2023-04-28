@@ -1,4 +1,5 @@
-// Title: Power for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor
+// Title: Power for 2012 Test Statistic with Endogeneity and Semi-Long Memory Regressor under Integrable Regression Function
+// Note: We use the nonparametric form of g_hat for subsamples.
 // Author: Sepideh Mosaferi
 // Date: March 2023
 
@@ -6,18 +7,28 @@ new;
 library pgraph;
 pqgwin many;
 
-// test statistic
+// test statistic for entire data
 proc ( 1 ) = Test2012(y,x,hpower);
-    local n,gam,arg,ker,xmat,theta,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    local n,gam,arg,ker,theta,j,Ratio,thetanew,dif,theta1,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
     n = rows(y);      
     gam = 1/n^hpower;    
     arg = (x*ones(1,n)-ones(n,1)*x')/gam; 
     ker = pdfn(arg);  
-    xmat = zeros(n, 2);
-    xmat[.,1]=ones(n,1);
-    xmat[.,2]=x;
-    theta=pinv(xmat'*xmat)*xmat'*y;
-    gxtheta = theta[1]+theta[2]*x; 
+    theta = -ln(maxc(abs(y)))/abs(maxc(abs(x))); @ init value @
+    // iterative alg:
+    j = 1;
+    do until j > 500;
+        Ratio = sumc((abs(x).*exp(-theta*abs(x))).*(y-exp(-theta*abs(x))))/sumc((abs(x)^2 .*exp(-theta*abs(x))).*(y-2*exp(-theta*abs(x))));
+        thetanew = theta+Ratio;
+        dif = thetanew-theta;
+        theta = thetanew;
+        if(abs(dif)<10^(-5)); break;
+        else;
+            j = j+1;
+            endif;
+            endo;
+    theta1 = theta;
+    gxtheta = exp(-theta1*abs(x)); 
     u2 = (y-gxtheta);
     u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
     S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    
@@ -27,7 +38,27 @@ proc ( 1 ) = Test2012(y,x,hpower);
     V_N2 = sumc(sumc(diagrv(u2_2m.*ker2,0)));    
     Z_N = S_N/sqrt(2*V_N2);        
     retp(Z_N);
-endp;      
+endp;  
+
+// test statistic for blocks
+proc ( 1 ) = Test2012_subsamples(y,x,xf,hpower);
+    local n,m,gam,arg,ker,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    n = rows(y);      
+    m     = rows(xf); @ rows of xf in : mt(xf) = sum{(K(xf-xs)*ys}/sum(K(xf-xs) @
+    gam = 1/n^hpower;    
+    arg   = (xf*ones(1,n)-ones(m,1)*x')/gam;
+    ker   = pdfn(arg); 
+    gxtheta = (ker*y)./sumc(ker');
+    u2 = (y-gxtheta);
+    u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
+    S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    
+    u2power = u2^2;
+    u2_2m = ((u2power*ones(1,n)).*(ones(n,1)*u2power'));
+    ker2 = ker^2;     
+    V_N2 = sumc(sumc(diagrv(u2_2m.*ker2,0)));    
+    Z_N = S_N/sqrt(2*V_N2);        
+    retp(Z_N);
+endp;
 
 
 // proc to generate semi-long memory data by looping 
@@ -64,8 +95,8 @@ endp;
 
 
 /* main program   */
-  library gauss, pgraph;
-  pqgwin many;
+ library gauss, pgraph;
+ pqgwin many;
    
    seed1  = 78912342;
    iter   = 2000;             @ # iterations  @
@@ -95,7 +126,7 @@ sig = 0.2;             @ error standard deviation @
 nn = numh[2]; 
   
 alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ alpha=nominal level type I error @
-  
+
   Ind_accept1 = zeros(iter,rows(alpha));
   Ind_accept2 = zeros(iter,rows(alpha));
   Ind_accept3 = zeros(iter,rows(alpha));
@@ -112,9 +143,16 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       uxtempd04 = dsimtemp(ux,d04,delta4);  // generate semi-long memory inputs for regressor [case: d04]. This could be changed for the other values of d and delta.    
       xtempd04 = recserar(uxtempd04,uxtempd04[1],1); 
       
-      h_N = nn^(-hpower);
-      nu = 3;
-      fxtempd04_HA = xtempd04+(abs(xtempd04)^nu)*(1/(nn^(0.25+(nu/3))*(h_N^0.25)));
+      // multiple scenarios for the regression function:
+      // 1. y=exp(-|x|)+0.5|x|^2*I(|x| <= 10). 
+      // Code: fxtempd04_HA = exp(-abs(xtempd04))+0.5*(abs(xtempd04)^2).*(abs(xtempd04) .<=10)
+      // 2. y=exp(-|x|)+20*exp(-|x|^2)
+      // Code: fxtempd04_HA = exp(-abs(xtempd04))+20*exp(-abs(xtempd04)^2)
+      // 3. y=exp(-|x|)+0.1|x|
+      // Code: fxtempd04_HA = exp(-abs(xtempd04))+0.1*abs(xtempd04)
+      // 4. y=exp(-|x|)+0.1|x|^2
+      // Code: fxtempd04_HA = exp(-abs(xtempd04))+0.1*(abs(xtempd04)^2)
+      fxtempd04_HA = exp(-abs(xtempd04))+0.1*(abs(xtempd04)^2);
       ytempd04_HA = b*fxtempd04_HA + sig*uy;   // cointegrated regression equation [case: d04]. This could be changed for the other values of d and delta.
       
       //writing data
@@ -131,7 +169,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       h_b2 = block2^(-hpower);
       h_b3 = block3^(-hpower);
       h_b4 = block4^(-hpower);
-      
+          
       // test statistic
       Test_all = Test2012(ytempd04_HA,xtempd04,hpower);
       
@@ -147,7 +185,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       sub_Test_1 = zeros(numblock1,1);
       l = 1;
       do until l > numblock1;
-          sub_Test_1[l,1] = Test2012(arraytomat(subDATA1[l,.,2]),arraytomat(subDATA1[l,.,1]),hpower); 
+          sub_Test_1[l,1] = Test2012_subsamples(arraytomat(subDATA1[l,.,2]),arraytomat(subDATA1[l,.,1]),arraytomat(subDATA1[l,.,1]),hpower); 
           l = l+1;
       endo;
       
@@ -181,7 +219,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       sub_Test_2 = zeros(numblock2,1);
       l = 1;
       do until l > numblock2;
-          sub_Test_2[l,1] = Test2012(arraytomat(subDATA2[l,.,2]),arraytomat(subDATA2[l,.,1]),hpower); 
+          sub_Test_2[l,1] = Test2012_subsamples(arraytomat(subDATA2[l,.,2]),arraytomat(subDATA2[l,.,1]),arraytomat(subDATA2[l,.,1]),hpower); 
           l = l+1;
       endo;
       
@@ -215,7 +253,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       sub_Test_3 = zeros(numblock3,1);
       l = 1;
       do until l > numblock3;
-          sub_Test_3[l,1] = Test2012(arraytomat(subDATA3[l,.,2]),arraytomat(subDATA3[l,.,1]),hpower); 
+          sub_Test_3[l,1] = Test2012_subsamples(arraytomat(subDATA3[l,.,2]),arraytomat(subDATA3[l,.,1]),arraytomat(subDATA3[l,.,1]),hpower); 
           l = l+1;
       endo;
       
@@ -249,7 +287,7 @@ alpha = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50};  @ a
       sub_Test_4 = zeros(numblock4,1);
       l = 1;
       do until l > numblock4;
-          sub_Test_4[l,1] = Test2012(arraytomat(subDATA4[l,.,2]),arraytomat(subDATA4[l,.,1]),hpower); 
+          sub_Test_4[l,1] = Test2012_subsamples(arraytomat(subDATA4[l,.,2]),arraytomat(subDATA4[l,.,1]),arraytomat(subDATA4[l,.,1]),hpower); 
           l = l+1;
       endo;
       
@@ -295,5 +333,5 @@ Save the results
 Output file = "/Users/sepidehmosaferi/Desktop/Result.txt" ON; /* this opens the text file to store the results */
 Result;
 Output off; /* this closes the text file to store the results */  
-    
-    
+
+

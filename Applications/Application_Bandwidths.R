@@ -2,18 +2,16 @@
 # Title: R code for the Selection of Optimal Bandwidths and Related Plots 
 #        in the Application
 # Author: Sepideh Mosaferi
-# Date: July 2022
+# Date: April 2023
 #-------------------------------------------------------------------------------
 require("PLRModels")
 
 # read data
-glinear_Spain <- read.table("/Users/sepidehmosaferi/Desktop/glinear_Spain.txt", header = TRUE)
-gquadratic_France <- read.table("/Users/sepidehmosaferi/Desktop/gquadratic_France.txt", header = TRUE)
-
+load("FranceSpain.RData")
 
 ## Spain
 # cross-validation
-data <- cbind(glinear_Spain[,2],glinear_Spain[,1])
+data <- cbind(glinear_Spain$y_Spain,glinear_Spain$x_Spain)
 
 CVprocess <- np.cv(data = data, h.seq = NULL, num.h = 50, w = NULL, num.ln = 1, 
                    ln.0 = 1, step.ln = 1, estimator = "NW", kernel = "gaussian")
@@ -62,7 +60,7 @@ legend(8.1, 5.75, legend=c("N-W", expression(H[A])), col = c("black","lightblue"
 #----------------------------------------------------------
 ## France
 # cross-validation
-data <- cbind(gquadratic_France[,2],gquadratic_France[,1])
+data <- cbind(gquadratic_France$y_France,gquadratic_France$x_France)
 
 CVprocess <- np.cv(data = data, h.seq = NULL, num.h = 50, w = NULL, num.ln = 1, 
                    ln.0 = 1, step.ln = 1, estimator = "NW", kernel = "gaussian")

@@ -1,0 +1,68 @@
+// Title: Testing the Null Hypothesis of the Straight Line Form Regression Function for Spain Based on 2020 Test Statistic
+// Note: We assume p=1 for the AR(p) based on the investigation.
+// Author: Sepideh Mosaferi
+// Date: April 2023
+
+new;
+library gauss, pgraph;
+pqgwin many;
+
+// test statistic 2020: straight line
+proc ( 1 ) = Test2020_linear(y,x);
+    local n,xmat,theta,gxtheta,u_hat,num_rho,denom_rho,s,rho_hat,v_hat,t,M,k,a_hat_k,u,Uhat_M;
+    n = rows(y);       
+    xmat = zeros(n, 2);
+    xmat[.,1]=ones(n,1);
+    xmat[.,2]=x;
+    theta=pinv(xmat'*xmat)*xmat'*y;
+    gxtheta = theta[1]+theta[2]*x; 
+    u_hat = (y-gxtheta);
+    num_rho = zeros(n-1,1);
+    denom_rho = zeros(n-1,1);
+    s = 2;
+    do until s > (n-1);
+        num_rho[s] = u_hat[s]*u_hat[s-1];
+        denom_rho[s] = u_hat[s-1]^2;
+        s = s+1;
+    endo;
+    rho_hat = sumc(num_rho)/sumc(denom_rho);
+    v_hat = zeros(n,1);
+    v_hat[1] = u_hat[1];
+    t = 2;
+    do until t > n;
+        v_hat[t] = u_hat[t]-rho_hat*u_hat[t-1];
+        t = t+1;
+    endo;
+    //M={6,12,18}
+    M=6;
+    a_hat_k = zeros(M,1);
+    k=1;
+    do until k > M;
+        a_hat_k[k] = sumc(v_hat[(k+1):n].*v_hat[1:(n-k)])/sumc(v_hat^2);
+        k = k+1;
+    endo;
+    Uhat_M = zeros(M,1);
+    u=1;
+    do until u > M;
+    Uhat_M[u] = n*(n+2)*(a_hat_k[u]^2/(n-k)); 
+        u = u+1;
+    endo;
+    Uhat_M = sumc(Uhat_M); 
+    retp(Uhat_M);
+endp;  
+
+
+// read data
+load Spain[59,2]= "/Users/sepidehmosaferi/Desktop/Spain.txt";
+
+// test 2020: straight line test
+Test = Test2020_linear(Spain[.,1],Spain[.,2]);
+
+// M={6,12,18}
+M=6;
+
+// p-value
+pvalue = cdfChic(Test, M-1);
+
+
+

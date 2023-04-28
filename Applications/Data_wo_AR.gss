@@ -1,0 +1,96 @@
+// Title: Generating Data without AR structure (Assuming MA structure) with Endogeneity and Long Memory 
+// Author: Sepideh Mosaferi
+// Date: March 2023
+
+new;
+library pgraph;
+pqgwin many; 
+
+// proc to generate long memory data by looping 
+proc dsim(u,d);
+/*
+** simulate I(d) data
+** input  = u
+** output = (I-L)^-d u
+*/
+local nn,y,b0,k,b,ur;
+nn= rows(u);
+b = zeros(nn,1);
+y = zeros(nn,1);
+b0=1;          
+k =1;
+do until k>nn;
+   if k==1;
+      b[k]=d;
+   else;   
+      b[k]=(k+d-1)*b[k-1]/k;
+   endif;
+   k = k+1;
+endo;  
+b=b0|b;
+k =1;
+do until k>nn;
+   ur   = rev(u[1:k]);   
+   y[k] = b[1:k]'ur;
+   k = k+1;
+endo;   
+retp(y);
+endp;
+
+
+/* main program   */
+ library gauss, pgraph;
+ pqgwin many;
+   
+seed1  = 78912342;
+
+d02 = 0.2; @ value of d @
+
+alpha_g = 0.55;
+beta_g = 0.60;
+gamma_g = 5;
+mu = 0;
+theta = 0.8;
+rho  = 0.5;   @ correlation between ux and uy for endogeneity @ 
+
+// data size
+nn = 81; 
+      
+ux  = 0.025*rndns(nn,1,seed1);    // regressor error 
+uy  = 0.025*rndns(nn,1,seed1);           // equation error
+ux  = 0.05+((1-rho^2)^0.5) *ux + rho*uy;  // endogeneity correlation = rho, and adding 0.05 
+
+uy_MA = zeros(nn,1);
+uy_MA[1] = mu + uy[1];
+
+k = 2;
+do until k > nn;
+    uy_MA[k]  = mu + uy[k]+theta*uy[k-1];
+    k = k+1;
+endo;
+      
+uxd02  = dsim(ux,d02);  // generate long memory inputs for regressor 
+xd02   = recserar(uxd02,uxd02[1],1);  // regressor is partial sum of long memory inputs
+gxd02 = gamma_g+(alpha_g*xd02-beta_g).*exp(-alpha_g*xd02);
+yd02 = gxd02 + uy_MA;    // cointegrated regression equation
+
+// fitted values from quadratic
+xmat = zeros(nn,3);
+xmat[.,1]=ones(nn,1);
+xmat[.,2]=xd02;
+xmat[.,3]=xd02^2;
+theta=pinv(xmat'*xmat)*xmat'*yd02;
+gxtheta_quad = theta[1]+theta[2]*xd02+theta[3]*xd02^2; 
+      
+// writing data
+DATA_woAR = xd02~yd02~gxd02~gxtheta_quad;
+  
+/*
+Save the data set
+*/
+   
+Output file = "/Users/sepidehmosaferi/Desktop/DATA_woAR.txt" ON; /* this opens the text file to store the results */
+DATA_woAR;
+Output off; /* this closes the text file to store the results */  
+
+

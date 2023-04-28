@@ -1,0 +1,102 @@
+// Title: Picking the Optimal Block Size for France Based on 2012 Test Tatistic
+// Note: The null hypothesis is the quadratic regression function form with pvalues.
+// Author: Sepideh Mosaferi
+// Date: April 2023
+
+new;
+library gauss, pgraph;
+pqgwin many;
+ 
+// test statistic 2012: quadratic
+proc ( 1 ) = Test2012_quadratic(y,x,h);
+    local n,arg,ker,xmat,theta,gxtheta,u2,u2_m,S_N,u2power,u2_2m,ker2,V_N2,Z_N;
+    n = rows(y);      
+    arg = (x*ones(1,n)-ones(n,1)*x')/h; 
+    ker = pdfn(arg); 
+    xmat = zeros(n, 3);
+    xmat[.,1]=ones(n,1);
+    xmat[.,2]=x;
+    xmat[.,3]=x^2;
+    theta=pinv(xmat'*xmat)*xmat'*y;  
+    gxtheta = theta[1]+theta[2]*x+theta[3]*x^2;  
+    u2 = (y-gxtheta);
+    u2_m = ((u2*ones(1,n)).*(ones(n,1)*u2'));
+    S_N = sumc(sumc(diagrv(u2_m.*ker,0)));    
+    u2power = u2^2;
+    u2_2m = ((u2power*ones(1,n)).*(ones(n,1)*u2power'));
+    ker2 = ker^2;     
+    V_N2 = sumc(sumc(diagrv(u2_2m.*ker2,0)));    
+    Z_N = S_N/sqrt(2*V_N2);    
+    retp(Z_N);
+endp;   
+
+// read data
+load France[59,2]= "/Users/sepidehmosaferi/Desktop/France.txt";
+       
+// sample size
+N = rows(France);
+       
+@ value of d @  
+d_FRAx = 1.093;
+       
+@ value of lambda @ 
+lambda_FRAx = 0.138;
+
+// h_N and h_b should be based on Cross Validation.
+       
+h_N = 0.07314563;
+       
+h_b = 0.07314563;
+
+        
+// test 2012: quadratic test       
+Test_all = Test2012_quadratic(France[.,1],France[.,2],h_N);
+
+block = seqa(2, 1, N-2);
+pvalue_block = zeros(N-2,1);
+       
+// subsampling process: it could be from 2 till N-1!
+k=1;
+do until k>N-2;
+    
+    // subDATA for block
+    numblock = N-block[k]+1;
+    subDATA = areshape(0,numblock|block[k]|2);
+    j = 1;
+    do until j > numblock;
+        subDATA[j,.,.] = France[j:(j+block[k]-1),.];
+        j = j+1;
+    endo;
+    sub_Test = zeros(numblock,1);
+    l = 1;
+    do until l > numblock;
+        sub_Test[l,1] = Test2012_quadratic(arraytomat(subDATA[l,.,1]),arraytomat(subDATA[l,.,2]),h_b);
+        l = l+1;
+    endo;
+    // indicator for p-value for block  
+    Ind_accept = zeros(numblock,1);
+    z=1;
+    do until z > numblock;  
+        Ind_accept[z] = abs(Test_all) <= abs(sub_Test[z]);  @ acceptance indicator @
+        z = z+1;
+    endo;
+    
+    // p-value    
+    pvalue_block[k] = meanc(Ind_accept);
+    
+    k = k+1;
+endo;
+
+
+// writing the results
+Block_Pvalue_France = block~pvalue_block;
+  
+/*
+Save the results
+*/
+   
+Output file = "/Users/sepidehmosaferi/Desktop/Block_Pvalue_France.txt" ON; /* this opens the text file to store the results */
+Block_Pvalue_France;
+Output off; /* this closes the text file to store the results */    
+
+

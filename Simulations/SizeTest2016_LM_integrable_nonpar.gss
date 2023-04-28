@@ -100,8 +100,8 @@ endp;
  pqgwin many;
    
    seed1  = 78912342;
-   iter   = 500;             @ # iterations  @
-   numh   = {100, 50, 1000, 5000}; @ sample size selections @
+   iter   = 2000;             @ # iterations  @
+   numh   = {100, 500, 1000, 5000}; @ sample size selections @
           
 d01 = 0.1;   @ value of d @
 d02 = 0.2;

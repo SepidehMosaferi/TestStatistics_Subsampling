@@ -91,7 +91,7 @@ endp;
    iter   = 2000;             @ # iterations  @
    numh   = {100, 500, 1000, 5000}; @ sample size selections @
           
-d01 = 0.4;   @ value of d @
+d01 = 0.1;   @ value of d @
 d02 = 0.2;
 d03 = 0.3; 
 d04 = 0.4;

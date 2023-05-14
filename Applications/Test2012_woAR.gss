@@ -30,7 +30,7 @@ proc ( 1 ) = Test2012_quadratic(y,x,h);
 endp;
 
 // read data
-load Data_woAR[81,4]= "/Users/sepidehmosaferi/Desktop/DATA_woAR.txt";
+load Data_woAR[80,4]= "/Users/sepidehmosaferi/Desktop/DATA_woAR.txt";
 
 // y & x
 y = Data_woAR[.,2];
@@ -49,13 +49,13 @@ block5 = 6*(N^0.5);
 
 // h_N and h_b's should be based on Cross Validation.
        
-h_N = 0.3574675;
+h_N = 0.25;
        
-h_b1 = 0.3574675;
-h_b2 = 0.3574675;
-h_b3 = 0.3574675;
-h_b4 = 0.3574675;
-h_b5 = 0.3574675;
+h_b1 = 0.25;
+h_b2 = 0.25;
+h_b3 = 0.25;
+h_b4 = 0.25;
+h_b5 = 0.25;
         
 // test 2012: quadratic test       
 Test_all = Test2012_quadratic(Data_woAR[.,1],Data_woAR[.,2],h_N);

@@ -7,8 +7,8 @@ library pgraph;
 pqgwin many;
 
 // test statistic
-proc ( 1 ) = Test2020(y,x);
-    local n,xmat,theta,gxtheta,u_hat,num_rho,denom_rho,s,rho_hat,v_hat,t,M,k,a_hat_k,u,Uhat_M;
+proc ( 1 ) = Test2020_tilde(y,x);
+    local n,xmat,theta,gxtheta,u_hat,matrix_rho,vector_rho,rho_hat,v_hat,t,M,k,a_hat_k,u,Utilde_M;
     n = rows(y);       
     xmat = zeros(n, 3);
     xmat[.,1]=ones(n,1);
@@ -17,20 +17,22 @@ proc ( 1 ) = Test2020(y,x);
     theta=pinv(xmat'*xmat)*xmat'*y;
     gxtheta = theta[1]+theta[2]*x+theta[3]*x^2; 
     u_hat = (y-gxtheta);
-    num_rho = zeros(n-1,1);
-    denom_rho = zeros(n-1,1);
-    s = 2;
-    do until s > (n-1);
-        num_rho[s] = u_hat[s]*u_hat[s-1];
-        denom_rho[s] = u_hat[s-1]^2;
-        s = s+1;
-    endo;
-    rho_hat = sumc(num_rho)/sumc(denom_rho);
+    // estimating rho's based on LSE
+    matrix_rho = zeros(2,2);
+    matrix_rho[1,1]=sumc(u_hat[2:(n-1)]^2);
+    matrix_rho[1,2]=sumc(u_hat[2:(n-1)].*u_hat[1:(n-2)]);
+    matrix_rho[2,1]=sumc(u_hat[2:(n-1)].*u_hat[1:(n-2)]);
+    matrix_rho[2,2]=sumc(u_hat[1:(n-2)]^2);
+    vector_rho = zeros(2,1);
+    vector_rho[1,1]=sumc(u_hat[3:n].*u_hat[2:(n-1)]);
+    vector_rho[2,1]=sumc(u_hat[3:n].*u_hat[1:(n-2)]);
+    rho_hat = pinv(matrix_rho)*vector_rho;
     v_hat = zeros(n,1);
     v_hat[1] = u_hat[1];
-    t = 2;
+    v_hat[2] = u_hat[2]-rho_hat[1]*u_hat[1];
+    t = 3;
     do until t > n;
-        v_hat[t] = u_hat[t]-rho_hat*u_hat[t-1];
+        v_hat[t] = u_hat[t]-rho_hat[1]*u_hat[t-1]-rho_hat[2]*u_hat[t-2];
         t = t+1;
     endo;
     //M={6,12,18}
@@ -41,27 +43,28 @@ proc ( 1 ) = Test2020(y,x);
         a_hat_k[k] = sumc(v_hat[(k+1):n].*v_hat[1:(n-k)])/sumc(v_hat^2);
         k = k+1;
     endo;
-    Uhat_M = zeros(M,1);
+    Utilde_M = zeros(M,1);
     u=1;
     do until u > M;
-    Uhat_M[u] = n*(n+2)*(a_hat_k[u]^2/(n-k)); 
+    Utilde_M[u] = n*(n+2)*(a_hat_k[u]^2/(n-k)); 
         u = u+1;
     endo;
-    Uhat_M = sumc(Uhat_M); 
-    retp(Uhat_M);
+    Utilde_M = sumc(Utilde_M); 
+    retp(Utilde_M);
 endp;  
 
 // read data
-load Data_woAR[81,4]= "/Users/sepidehmosaferi/Desktop/DATA_woAR.txt";
+load Data_woAR[80,4]= "/Users/sepidehmosaferi/Desktop/DATA_woAR.txt";
 
 x=Data_woAR[.,1];    
 y=Data_woAR[.,2];    
 
           
 // test statistic
-Test = Test2020(y,x);
+Test = Test2020_tilde(y,x);
       
 // M={6,12,18}
 M=18;
-pvalue = cdfChic(Test, M-1);
+p=2;
+pvalue = cdfChic(Test, M-p);
 

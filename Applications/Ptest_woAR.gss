@@ -1,4 +1,4 @@
-// Title: 2020 Test Statistic for Checking the Quadratic Regression Function for the Data without AR Structure
+// Title: P Test Statistic for Checking the Quadratic Regression Function for the Data without AR Structure
 // Author: Sepideh Mosaferi
 // Date: April 2023
 
@@ -7,7 +7,7 @@ library pgraph;
 pqgwin many;
 
 // test statistic
-proc ( 1 ) = Test2020_tilde(y,x);
+proc ( 1 ) = Ptest_tilde(y,x);
     local n,xmat,theta,gxtheta,u_hat,matrix_rho,vector_rho,rho_hat,v_hat,t,M,k,a_hat_k,u,Utilde_M;
     n = rows(y);       
     xmat = zeros(n, 3);
@@ -61,7 +61,7 @@ y=Data_woAR[.,2];
 
           
 // test statistic
-Test = Test2020_tilde(y,x);
+Test = Ptest_tilde(y,x);
       
 // M={6,12,18}
 M=18;

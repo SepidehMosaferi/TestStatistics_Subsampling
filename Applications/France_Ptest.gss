@@ -1,4 +1,4 @@
-// Title: Testing the Null Hypothesis of the Quadratic Form Regression Function for France Based on 2020 Test Statistic
+// Title: Testing the Null Hypothesis of the Quadratic Form Regression Function for France Based on P Test Statistic
 // Note: We assume p=1 for the AR(p) based on the investigation.
 // Author: Sepideh Mosaferi
 // Date: April 2023
@@ -7,8 +7,8 @@ new;
 library gauss, pgraph;
 pqgwin many;
  
-// test statistic 2020: quadratic
-proc ( 1 ) = Test2020_quadratic(y,x);
+// P test statistic: quadratic
+proc ( 1 ) = Ptest_quadratic(y,x);
     local n,xmat,theta,gxtheta,u_hat,num_rho,denom_rho,s,rho_hat,v_hat,t,M,k,a_hat_k,u,Uhat_M;
     n = rows(y);       
     xmat = zeros(n, 3);
@@ -56,8 +56,8 @@ endp;
 load France[59,2]= "/Users/sepidehmosaferi/Desktop/France.txt";
 
         
-// test 2020: quadratic test       
-Test = Test2020_quadratic(France[.,1],France[.,2]);
+// P test: quadratic test       
+Test = Ptest_quadratic(France[.,1],France[.,2]);
 
 // M={6,12,18}
 M=6;

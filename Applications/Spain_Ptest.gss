@@ -1,4 +1,4 @@
-// Title: Testing the Null Hypothesis of the Straight Line Form Regression Function for Spain Based on 2020 Test Statistic
+// Title: Testing the Null Hypothesis of the Straight Line Form Regression Function for Spain Based on P Test Statistic
 // Note: We assume p=1 for the AR(p) based on the investigation.
 // Author: Sepideh Mosaferi
 // Date: April 2023
@@ -7,8 +7,8 @@ new;
 library gauss, pgraph;
 pqgwin many;
 
-// test statistic 2020: straight line
-proc ( 1 ) = Test2020_linear(y,x);
+// P test statistic: straight line
+proc ( 1 ) = Ptest_linear(y,x);
     local n,xmat,theta,gxtheta,u_hat,num_rho,denom_rho,s,rho_hat,v_hat,t,M,k,a_hat_k,u,Uhat_M;
     n = rows(y);       
     xmat = zeros(n, 2);
@@ -55,8 +55,8 @@ endp;
 // read data
 load Spain[59,2]= "/Users/sepidehmosaferi/Desktop/Spain.txt";
 
-// test 2020: straight line test
-Test = Test2020_linear(Spain[.,1],Spain[.,2]);
+// P test: straight line test
+Test = Ptest_linear(Spain[.,1],Spain[.,2]);
 
 // M={6,12,18}
 M=6;

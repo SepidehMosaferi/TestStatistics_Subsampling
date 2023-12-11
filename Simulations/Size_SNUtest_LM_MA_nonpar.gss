@@ -1,7 +1,7 @@
 // Title: Size for SNU Test Statistic with Endogeneity and Long Memory Regressor with MA(1) Structure for the Residuals 
 // Note: We use the nonparametric form of g_hat for subsamples.
 // Author: Sepideh Mosaferi
-// Date: March 2023
+// Date: April 2023
 
 new;
 library pgraph;

@@ -1,6 +1,6 @@
 // Title: Power for de-biased MHM Test Statistic with Endogeneity and Long Memory Regressor under Integrable Regression Function
 // Author: Sepideh Mosaferi
-// Date: April 2023
+// Date: May 2023
 
 new;
 library pgraph;

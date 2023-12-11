@@ -1,7 +1,7 @@
 // Title: Size for MHM Test Statistic with Endogeneity and Long Memory Regressor under Integrable Regression Function
 // Note: We use the nonparametric form of g_hat for subsamples.
 // Author: Sepideh Mosaferi
-// Date: March 2023
+// Date: April 2023
 
 new;
 library pgraph;

@@ -1,7 +1,7 @@
 // Title: Power for SNU Test Statistic with Endogeneity and Long Memory Regressor
 // Note: This is an exmple of Minimal Volatility Rule, which has 4 sqrt{N} inside of it.
 // Author: Sepideh Mosaferi
-// Date: March 2023
+// Date: April 2023
 
 new;
 library pgraph;
